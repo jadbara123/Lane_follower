@@ -30,3 +30,34 @@ state_vector = [int(np.nanmean(self.warped[0:7, 0:4]/255)), int(np.nanmean(self.
 the H type setup
 tbc
 
+with right and left x setup
+state_vector = [int(np.nanmean(warped_r[0:4, 0:4]/255)), int(np.nanmean(warped_r[12:16, 0:4]/255)),
+                        int(np.nanmean(warped_r[4:8, 5:9]/255)), int(np.nanmean(warped_r[8:12, 5:9]/255)),
+                        int(np.nanmean(warped_r[4:8, 9:13]/255)), int(np.nanmean(warped_r[8:12, 9:13]/255)),
+                        int(np.nanmean(warped_r[4:8, 13:17]/255)), int(np.nanmean(warped_r[8:12, 13:17]/255)),
+                        int(np.nanmean(warped_r[4:8, 17:21]/255)), int(np.nanmean(warped_r[8:12, 17:21]/255)),
+                        int(np.nanmean(warped_r[4:8, 21:25]/255)), int(np.nanmean(warped_r[8:12, 21:25]/255)),
+                        int(np.nanmean(warped_r[0:4, 26:30]/255)), int(np.nanmean(warped_r[12:16, 26:30]/255)),
+
+                        int(np.nanmean(warped_l[0:4, 0:4]/255)), int(np.nanmean(warped_l[12:16, 0:4]/255)),
+                        int(np.nanmean(warped_l[4:8, 5:9]/255)), int(np.nanmean(warped_l[8:12, 5:9]/255)),
+                        int(np.nanmean(warped_l[4:8, 9:13]/255)), int(np.nanmean(warped_l[8:12, 9:13]/255)),
+                        int(np.nanmean(warped_l[4:8, 13:17]/255)), int(np.nanmean(warped_l[8:12, 13:17]/255)),
+                        int(np.nanmean(warped_l[4:8, 17:21]/255)), int(np.nanmean(warped_l[8:12, 17:21]/255)),
+                        int(np.nanmean(warped_l[4:8, 21:25]/255)), int(np.nanmean(warped_l[8:12, 21:25]/255)),
+                        int(np.nanmean(warped_l[0:4, 26:30]/255)), int(np.nanmean(warped_l[12:16, 26:30]/255)),
+                        
+                        int(np.nanmean(warped[0:6, 0:6]/255)), int(np.nanmean(warped[0:6, 6:12]/255)),
+                        int(np.nanmean(warped[0:6, 12:18]/255)), int(np.nanmean(warped[11:17, 12:16]/255)),
+                        int(np.nanmean(warped[11:17, 16:20]/255)), int(np.nanmean(warped[11:17, 20:24]/255)),
+                        int(np.nanmean(warped[22:28, 24:28]/255)), int(np.nanmean(warped[22:28, 28:32]/255)),
+                        int(np.nanmean(warped[22:28, 32:36]/255)), int(np.nanmean(warped[33:39, 30:36]/255)),
+                        int(np.nanmean(warped[33:39, 36:42]/255)), int(np.nanmean(warped[33:39, 42:48]/255)),
+                        int(np.nanmean(warped[33:39, 0:6]/255)), int(np.nanmean(warped[33:39, 6:12]/255)),
+                        int(np.nanmean(warped[33:39, 12:18]/255)), int(np.nanmean(warped[22:28, 12:16]/255)),
+                        int(np.nanmean(warped[22:28, 16:20]/255)), int(np.nanmean(warped[22:28, 20:24]/255)),
+                        int(np.nanmean(warped[11:17, 24:28]/255)), int(np.nanmean(warped[11:17, 28:32]/255)),
+                        int(np.nanmean(warped[11:17, 32:36]/255)), int(np.nanmean(warped[0:6, 30:36]/255)),
+                        int(np.nanmean(warped[0:6, 36:42]/255)), int(np.nanmean(warped[0:6, 42:48]/255)),
+                        ]
+

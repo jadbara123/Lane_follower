@@ -5,7 +5,6 @@ import cv2
 import numpy as np
 import time
 import new_sim
-import lane_det
 
 class initialNode():
     def __init__(self, name, state, action):
@@ -319,8 +318,8 @@ while 1:
     state = carlo.get_state()
     rt_action = carlo.get_action()
     mcts = MCTS(state=state)
-    #print(delay)
-    if flag_egitim:
+    print("---"+str(delay))
+    if flag_egitim and rt_action != 0:
         if str(state) != str(prev) or str(action) != str(rt_action):
             if child is not None:
                 mcts.expand(desired_node)
@@ -328,11 +327,12 @@ while 1:
             desired_node = mcts.select(state, child)
         _,_,_,node_state,action,is_terminal,_,_,child = mcts.get_data(desired_node)
         prev = node_state
+        delay = 0
         if mcts.is_terminal(desired_node):
             mcts.backprop(desired_node)
             child = None
-    else:
-        if str(state) != str(prev) or str(action) != str(rt_action) or delay == 0 or delay > 2:
+    elif not flag_egitim:
+        if str(action) != str(rt_action) or delay == 0 or delay > 2:
             #print(child)
             if child is not None:
                 _,_,_,_,_,_,_,_,child = mcts.get_data(desired_node)
@@ -348,7 +348,6 @@ while 1:
                 child = None
         else:
             desired_node = desired_node
-        delay += 1
         _, _, _, state, action, _, fully_exp, _, _, = mcts.get_data(desired_node)
         carlo.act(action)
         #print(carlo.get_action() != 0)
@@ -365,6 +364,7 @@ while 1:
             if mcts.is_terminal(desired_node):
                 mcts.backprop(desired_node)
                 child = None
+        delay += 1
 
 
 pygame.quit()

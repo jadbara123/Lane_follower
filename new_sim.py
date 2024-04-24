@@ -3,7 +3,7 @@ import math
 import os
 import cv2
 import numpy as np
-import lane_det
+import hard_code_LK
 pygame.init()
 
 WIDTH, HEIGHT = 800, 600
@@ -87,30 +87,41 @@ class Carlo:
     
     def get_state(self):
         warped = self.warped
+        warped_r = self.control_sag()
+        warped_l = self.control_sol()
         # X type setup
-        state_vector = [int(np.nanmean(warped[0:6, 0:6]/255)), int(np.nanmean(warped[0:6, 6:12]/255)),
-                        int(np.nanmean(warped[0:6, 12:18]/255)), int(np.nanmean(warped[11:17, 12:16]/255)),
-                        int(np.nanmean(warped[11:17, 16:20]/255)), int(np.nanmean(warped[11:17, 20:24]/255)),
-                        int(np.nanmean(warped[22:28, 24:28]/255)), int(np.nanmean(warped[22:28, 28:32]/255)),
-                        int(np.nanmean(warped[22:28, 32:36]/255)), int(np.nanmean(warped[33:39, 30:36]/255)),
-                        int(np.nanmean(warped[33:39, 36:42]/255)), int(np.nanmean(warped[33:39, 42:48]/255)),
-                        int(np.nanmean(warped[33:39, 0:6]/255)), int(np.nanmean(warped[33:39, 6:12]/255)),
-                        int(np.nanmean(warped[33:39, 12:18]/255)), int(np.nanmean(warped[22:28, 12:16]/255)),
-                        int(np.nanmean(warped[22:28, 16:20]/255)), int(np.nanmean(warped[22:28, 20:24]/255)),
-                        int(np.nanmean(warped[11:17, 24:28]/255)), int(np.nanmean(warped[11:17, 28:32]/255)),
-                        int(np.nanmean(warped[11:17, 32:36]/255)), int(np.nanmean(warped[0:6, 30:36]/255)),
-                        int(np.nanmean(warped[0:6, 36:42]/255)), int(np.nanmean(warped[0:6, 42:48]/255)),
+        state_vector = [int(np.nanmean(warped_r[0:8, 0:8]/150)), int(np.nanmean(warped_r[0:8, 8:16]/150)),
+                        int(np.nanmean(warped_r[11:19, 4:12]/150)), int(np.nanmean(warped_r[22:30, 0:8]/150)),
+                        int(np.nanmean(warped_r[22:30, 8:16]/150)),
+
+                        int(np.nanmean(warped_l[0:8, 0:8]/150)), int(np.nanmean(warped_l[0:8, 8:16]/150)),
+                        int(np.nanmean(warped_l[11:19, 4:12]/150)), int(np.nanmean(warped_l[22:30, 0:8]/150)),
+                        int(np.nanmean(warped_l[22:30, 8:16]/150)), 
+                        
+                        int(np.nanmean(warped[0:6, 0:6]/150)),   int(np.nanmean(warped[0:6, 6:12]/150)),
+                        int(np.nanmean(warped[0:6, 12:18]/150)), int(np.nanmean(warped[11:17, 12:16]/150)),
+                        int(np.nanmean(warped[11:17, 16:20]/150)), int(np.nanmean(warped[11:17, 20:24]/150)),
+                        int(np.nanmean(warped[22:28, 24:28]/150)), int(np.nanmean(warped[22:28, 28:32]/150)),
+                        int(np.nanmean(warped[22:28, 32:36]/150)), int(np.nanmean(warped[33:39, 30:36]/150)),
+                        int(np.nanmean(warped[33:39, 36:42]/150)), int(np.nanmean(warped[33:39, 42:48]/150)),
+                        int(np.nanmean(warped[33:39, 0:6]/150)), int(np.nanmean(warped[33:39, 6:12]/150)),
+                        int(np.nanmean(warped[33:39, 12:18]/150)), int(np.nanmean(warped[22:28, 12:16]/150)),
+                        int(np.nanmean(warped[22:28, 16:20]/150)), int(np.nanmean(warped[22:28, 20:24]/150)),
+                        int(np.nanmean(warped[11:17, 24:28]/150)), int(np.nanmean(warped[11:17, 28:32]/150)),
+                        int(np.nanmean(warped[11:17, 32:36]/150)), int(np.nanmean(warped[0:6, 30:36]/150)),
+                        int(np.nanmean(warped[0:6, 36:42]/150)), int(np.nanmean(warped[0:6, 42:48]/150)),
                         ]
+        for i in range(len(state_vector)):
+            if state_vector[i] > 0.9: state_vector[i] = 1
         return state_vector
     
     def get_action(self, train = True):
         if train:
             return self.current_action
         else:
-            lane = lane_det.LaneDetection()
-            _, ref = lane.main(self.yeni_alan())
-            if ref > 0: action = 4
-            else: action = 3
+            self.lane = hard_code_LK.lane_keep()
+            action = self.lane.main(self.control_sag(), self.control_sol())
+            print(action)
             return action
 
     def handle_events(self):
@@ -248,8 +259,10 @@ class Carlo:
         ret, self.warped = cv2.threshold(self.warped, 127, 255, cv2.THRESH_BINARY)
 
         cv2.circle(self.opencv_image, (50,50), 5, (0,0,255), -1)
+        cropped = self.warped[0:8, 0:8]
 
         cv2.imshow("warprd", self.warped)
+        cv2.imshow("cropped", cropped)
         cv2.imshow("original", self.opencv_image)
 
         pygame.display.flip()
@@ -263,7 +276,7 @@ class Carlo:
     def control_sol(self):
         dot_distance = 15  
         dot_positions_relative = [
-            (dot_distance+15, -8),  
+            (dot_distance+15, -8),
             (dot_distance+15, -24),
             (dot_distance-15, -24),
             (dot_distance-15, -8)
@@ -285,11 +298,11 @@ class Carlo:
             cv2.circle(self.opencv_image, dot_position, 3, (255, 255, 255), -1)
             roi_coordinates.append(dot_position)
 
-        self.warped = self.four_point_transform(self.opencv_image, np.array(roi_coordinates))
-        self.warped = cv2.cvtColor(self.warped, cv2.COLOR_BGR2GRAY)
-        ret, self.warped = cv2.threshold(self.warped, 127, 255, cv2.THRESH_BINARY)
+        warped_l = self.four_point_transform(self.opencv_image, np.array(roi_coordinates))
+        warped_l = cv2.cvtColor(warped_l, cv2.COLOR_BGR2GRAY)
+        ret, warped_l = cv2.threshold(warped_l, 127, 255, cv2.THRESH_BINARY)
 
-        return self.warped
+        return warped_l
     
     def control_sag(self):
         dot_distance = 15  
@@ -316,12 +329,12 @@ class Carlo:
             cv2.circle(self.opencv_image, dot_position, 3, (255, 255, 255), -1)
             roi_coordinates.append(dot_position)
         
-        self.warped = self.four_point_transform(self.opencv_image, np.array(roi_coordinates))
-        self.warped = cv2.cvtColor(self.warped, cv2.COLOR_BGR2GRAY)
-        ret, self.warped = cv2.threshold(self.warped, 127, 255, cv2.THRESH_BINARY)
+        warped_r = self.four_point_transform(self.opencv_image, np.array(roi_coordinates))
+        warped_r = cv2.cvtColor(warped_r, cv2.COLOR_BGR2GRAY)
+        ret, warped_r = cv2.threshold(warped_r, 127, 255, cv2.THRESH_BINARY)
         
 
-        return self.warped
+        return warped_r
     
     def yeni_alan(self):
         dot_distance = 15  
@@ -371,7 +384,7 @@ class Carlo:
     carlo = Carlo()
     while 1:
         carlo.run()
-        print(carlo.get_state())
+        carlo.rl_view()
     pygame.quit()
     cv2.destroyAllWindows()
 """
